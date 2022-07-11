@@ -1,24 +1,19 @@
 from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
 from aiogram.utils import executor
-from aiogram.types import ReplyKeyboardRemove, \
-    ReplyKeyboardMarkup, KeyboardButton, \
-    InlineKeyboardMarkup, InlineKeyboardButton
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
-from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.dispatcher import FSMContext
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from pymongo import MongoClient
 from config import *
+import time
 from questions import *
-import asyncio
+#import asyncio
 
 cluster = MongoClient(MongoTOKEN)
 db = cluster["Bot"]
 quiz = db["Quiz"]
 
 bot = Bot(token=TOKEN)
-storage = MemoryStorage()
-dp = Dispatcher(bot, storage=storage)
+dp = Dispatcher(bot)
 
 
 kb = InlineKeyboardMarkup(
@@ -39,6 +34,7 @@ kb = InlineKeyboardMarkup(
 
 @dp.message_handler(commands=['start'])
 async def process_start_command(message: types.Message):
+    timeout = time.time() + 600
     for number in range(1, 3):
         mytext = globals()[f'question{number}']
         for num, text in enumerate(mytext[1:4]):
@@ -49,9 +45,16 @@ async def process_start_command(message: types.Message):
                                           correct_option_id=correct_index,
                                           type='quiz',
                                           is_anonymous=False,
-                                          open_period=5,
+                                          #open_period=5,
                                           reply_markup=kb)
-                await asyncio.sleep(10)
+                if len(quiz.distinct('nam')[-1]) == 0:
+                    print('empty')
+                    time.sleep(5)
+                if len(quiz.distinct('nam')[-1]) != 0:
+                    print('no')
+
+                #time.sleep(5)
+
 
 
 @dp.poll_answer_handler()
