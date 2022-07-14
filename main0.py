@@ -16,24 +16,14 @@ bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
 
 print(quiz.distinct('qnum')[0])
-kb = InlineKeyboardMarkup(
-                              inline_keyboard=[
-                                  [
-                                      InlineKeyboardButton(
-                                          text="Növbəti suala keçid",
-                                          callback_data="next_question"
-                                      )
-                                  ],
-                                  [
-                                      InlineKeyboardButton(
-                                          text="Dayandır",
-                                          callback_data="cancel"
-                                      )
-                                  ]
-                              ])
+
+button = InlineKeyboardButton('Növbəti suala keçid', callback_data='next_question')
+button1 = InlineKeyboardMarkup().add(button)
+
 
 @dp.message_handler(commands=['start'])
 async def process_start_command(message: types.Message):
+    quiz.insert_one({'id': 1, 'scores': [1] } )
     for num, text in enumerate(question1[1:4]):
         if text == question1[-1]:
             correct_index = num
@@ -43,9 +33,7 @@ async def process_start_command(message: types.Message):
                                         type='quiz',
                                         is_anonymous=False,
                                         #open_period=5,
-                                        reply_markup=kb)
-
-
+                                        reply_markup=button1)
 
 
 
@@ -56,20 +44,17 @@ async def poll_answer(poll_answer: types.PollAnswer):
 
 @dp.callback_query_handler(text='next_question')
 async def next_question(call: types.CallbackQuery):
-    chat_id_ = call.from_user.id
-    print(chat_id_)
-    print(quiz.distinct('qnum')[0])
     for num, text in enumerate(globals()[f"question{int(quiz.distinct('qnum')[-1])+1}"][1:4]):
         if text == globals()[f"question{int(quiz.distinct('qnum')[-1])+1}"][-1]:
             correct_index = num
-            await bot.send_poll(chat_id=chat_id_,
+            await bot.send_poll(chat_id=call.from_user.id,
                                 question=globals()[f"question{int(quiz.distinct('qnum')[-1])+1}"][0],
                                 options=globals()[f"question{int(quiz.distinct('qnum')[-1])+1}"][1:4],
                                 correct_option_id=correct_index,
                                 type='quiz',
                                 is_anonymous=False,
                                 # open_period=5,
-                                reply_markup=kb)
+                                reply_markup=button1)
             quiz.find_one_and_update({"id": 1}, {"$push": {"qnum": int(quiz.distinct('qnum')[-1])+1}})
     #await call.message.answer('Növbəti suala keçid')
 @dp.callback_query_handler(text='cancel')

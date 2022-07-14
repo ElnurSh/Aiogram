@@ -1,3 +1,3 @@
-question1 = ['What is my name?', 'elnur', 'vali', 'ali', 'ali']
-question2 = ['Where are you working?', 'SOCAR', 'AZERSUN', 'FUNDA', 'AZERSUN']
-question3 = ['How old i am?', '35', '34', '33', '35']
+question1 = ['What is my name?', 'elman', 'elnur', 'ali', 'elnur']
+question2 = ['Where I am working?', 'SOCAR', 'AZERSUN', 'FUNDA', 'SOCAR']
+question3 = ['How old I am?', '35', '34', '33', '35']
