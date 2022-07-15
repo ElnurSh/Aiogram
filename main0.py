@@ -4,7 +4,6 @@ from aiogram.utils import executor
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from pymongo import MongoClient
 from config import *
-import time
 from questions import *
 
 
@@ -23,7 +22,7 @@ button1 = InlineKeyboardMarkup().add(button)
 
 @dp.message_handler(commands=['start'])
 async def process_start_command(message: types.Message):
-    quiz.insert_one({'id': 1, 'scores': [1] } )
+    quiz.insert_one({'user': message.from_user.id, 'score': 1 } )
     for num, text in enumerate(question1[1:4]):
         if text == question1[-1]:
             correct_index = num
@@ -44,18 +43,18 @@ async def poll_answer(poll_answer: types.PollAnswer):
 
 @dp.callback_query_handler(text='next_question')
 async def next_question(call: types.CallbackQuery):
-    for num, text in enumerate(globals()[f"question{int(quiz.distinct('qnum')[-1])+1}"][1:4]):
-        if text == globals()[f"question{int(quiz.distinct('qnum')[-1])+1}"][-1]:
+    for num, text in enumerate(globals()[f"question{int(quiz.find({'user': call.from_user.id}).distinct('score')[-1])+1}"][1:4]):
+        if text == globals()[f"question{int(quiz.find({'user': call.from_user.id}).distinct('score')[-1])+1}"][-1]:
             correct_index = num
             await bot.send_poll(chat_id=call.from_user.id,
-                                question=globals()[f"question{int(quiz.distinct('qnum')[-1])+1}"][0],
-                                options=globals()[f"question{int(quiz.distinct('qnum')[-1])+1}"][1:4],
+                                question=globals()[f"question{int(quiz.find({'user': call.from_user.id}).distinct('score')[-1])+1}"][0],
+                                options=globals()[f"question{int(quiz.find({'user': call.from_user.id}).distinct('score')[-1])+1}"][1:4],
                                 correct_option_id=correct_index,
                                 type='quiz',
                                 is_anonymous=False,
                                 # open_period=5,
                                 reply_markup=button1)
-            quiz.find_one_and_update({"id": 1}, {"$push": {"qnum": int(quiz.distinct('qnum')[-1])+1}})
+            quiz.update_one({'user': call.from_user.id}, {'$set': {'score': int(quiz.find({'user': call.from_user.id}).distinct('score')[-1])+1}})
     #await call.message.answer('Növbəti suala keçid')
 @dp.callback_query_handler(text='cancel')
 async def cancel(call: types.CallbackQuery):
