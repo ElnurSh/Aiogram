@@ -4,7 +4,7 @@ from aiogram.utils import executor
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from pymongo import MongoClient
 from config import *
-from questions import *
+#from questions import *
 
 
 cluster = MongoClient(MongoTOKEN)
