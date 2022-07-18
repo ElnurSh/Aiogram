@@ -45,9 +45,9 @@ async def process_start_command(message: types.Message):
 
 @dp.poll_answer_handler()
 async def poll_answer(poll_answer: types.PollAnswer):
-    if poll_answer.option_ids == quiz.find({'user': poll_answer.user.id}).distinct('index1')[-1]:
+    if poll_answer.option_ids[-1] == quiz.find({'user': poll_answer.user.id}).distinct('index1')[-1]:
         quiz.update_one({'user': poll_answer.user.id}, {'$set': {'score': int(quiz.find({'user': poll_answer.user.id}).distinct('score')[-1])+1}})
-
+        print('good job')
         #ccc = quiz.find({'user': poll_answer.chat_id}).distinct('score')
         #ccc += 1
         #quiz.update_one({'user': poll_answer.user.id}, {'$set': {'score': ccc}})
