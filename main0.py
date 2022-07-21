@@ -17,7 +17,7 @@ dp = Dispatcher(bot)
 
 
 
-button = InlineKeyboardButton('Növbəti suala keçid', callback_data='next_question')
+button = InlineKeyboardButton('Next question', callback_data='next_question')
 button1 = InlineKeyboardMarkup().add(button)
 
 @dp.message_handler(commands=['start'])
@@ -53,10 +53,13 @@ async def poll_answer(poll_answer: types.PollAnswer):
 @dp.callback_query_handler(text='next_question')
 async def next_question(call: types.CallbackQuery):
     if quiz.find({'user': call.from_user.id}).distinct('qnumber')[-1] == 10:
+        right = quiz.find({'user': call.from_user.id}).distinct('score')[-1]
+        wrong = quiz.find({'user': call.from_user.id}).distinct('qnumber')[-1] - quiz.find({'user': call.from_user.id}).distinct('score')[-1]
         await bot.answer_callback_query(call.id,
-                                        text=f"Это был последний {quiz.find({'user': call.from_user.id}).distinct('qnumber')[-1]} вопрос!\n"
-                                                f"Вы заработали {quiz.find({'user': call.from_user.id}).distinct('score')[-1]}"
-                                                                            f" из {quiz.find({'user': call.from_user.id}).distinct('qnumber')[-1]}.",
+                                        text="Quiz FINISHED!\n"
+                                             "Your score is:\n"
+                                             f"👍 {right}\n"
+                                             f"👎 {wrong}",
                                         show_alert=True)
     else:
         quiz.update_one({'user': call.from_user.id}, {'$set': {'qnumber': int(quiz.find({'user': call.from_user.id}).distinct('qnumber')[-1])+1}})
