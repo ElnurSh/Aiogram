@@ -52,7 +52,7 @@ async def poll_answer(poll_answer: types.PollAnswer):
 
 @dp.callback_query_handler(text='next_question')
 async def next_question(call: types.CallbackQuery):
-    if quiz.find({'user': call.from_user.id}).distinct('qnumber')[-1] == 3:
+    if quiz.find({'user': call.from_user.id}).distinct('qnumber')[-1] == 10:
         await bot.answer_callback_query(call.id,
                                         text=f"Это был последний {quiz.find({'user': call.from_user.id}).distinct('qnumber')[-1]} вопрос!\n"
                                                 f"Вы заработали {quiz.find({'user': call.from_user.id}).distinct('score')[-1]}"
