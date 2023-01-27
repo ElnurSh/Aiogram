@@ -17,7 +17,7 @@ class Question(StatesGroup):
 @dp.message_handler(commands='ask')
 async def start(message: types.Message):
     await Question.question.set()  # Set conversation
-    await message.reply(f"<b>{message.from_user.first_name}</b>,\n🫵 send your question...",
+    await message.reply(f"<b>{message.from_user.first_name}</b>,\n 🫵 send your question...",
                         parse_mode='HTML')
 
 
